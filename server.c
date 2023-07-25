@@ -4,6 +4,7 @@
 #include <pthread.h>
 #include <mqueue.h>
 #include <fcntl.h>
+#include <errno.h>
 
 struct massege {
 	char* name;
@@ -113,6 +114,10 @@ void* send_to_client(void* args) {
 
 		queue = ptr->whom[i];
 		open = mq_open(queue, O_WRONLY);
+		if (-1 == open) {
+			perror("Smth went wrong in pthread");
+			exit(EXIT_FAILURE);
+		}
 		mq_send(open, ptr->string, strlen(ptr->string), 1);
 
 		mq_close(open);
@@ -120,5 +125,5 @@ void* send_to_client(void* args) {
 
 	}
 
-	exit(EXIT_SUCCESS);
+	//exit(EXIT_SUCCESS);
 }

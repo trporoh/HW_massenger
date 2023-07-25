@@ -4,6 +4,12 @@
 #include <pthread.h>
 #include <mqueue.h>
 #include <fcntl.h>
+#include <curses.h>
+
+#define SPACE "                                                                                                                        " //NEED MORE SPACES!!!
+
+WINDOW* received_masseges;
+WINDOW* text;
 
 char* client_name;
 char* massege_to_send;
@@ -15,8 +21,8 @@ pthread_t check;
 
 void getname(char** name); 
 void* wait_for_massege(void* argv);
-
 int send_massege();
+void init();
 
 int main(int args, char** arhv) {
 
@@ -26,6 +32,10 @@ int main(int args, char** arhv) {
 
 	getname(&client_name);
 	strcpy(massege_to_send, client_name);
+
+	system("clear");
+
+	init();
 
 	pthread_create(&check, NULL, wait_for_massege, NULL);
 
@@ -56,11 +66,13 @@ void getname(char** name) {
 int send_massege() {
 
 	char* string = malloc(512);
-//	scanf("%s", string);
-	gets(string,sizeof(string));
 
-	strcat(massege_to_send, "\n");
-	strcat(massege_to_send, string);
+	wmove(text, 1, 1);
+	wgetstr(text, string);
+	mvwprintw(text, 1, 1, SPACE);
+
+	//strcat(massege_to_send, "\n");
+	//strcat(massege_to_send, string);
 
 	mq_send(server, string, strlen(string), 1);
 
@@ -72,6 +84,7 @@ void* wait_for_massege(void* argv) {
 
 	struct mq_attr* attr;
 	char* received_string = malloc(512);
+	int ptr = 1;
 
 	while (1) {
 
@@ -81,10 +94,30 @@ void* wait_for_massege(void* argv) {
 
 		if (strcmp(received_string, "")) {
 
-			printf("%s", received_string);
+			mvwprintw(received_masseges, ptr, 1,received_string);
+			//wmove(text, 1, 1);
+			wrefresh(received_masseges);
+			ptr += 4;
 
 		}
 	}
 	//free(attr);
 	//free(received_string);
+}
+
+void init() {
+
+	initscr();
+	curs_set(TRUE);
+	refresh();
+
+	received_masseges = newwin(30, 100, 0, 1);
+	text = newwin(5, 100, 30, 1);
+
+	box(received_masseges, '|', '-');
+	box(text, '|', '-');
+
+	wrefresh(received_masseges);
+	wrefresh(text);
+
 }

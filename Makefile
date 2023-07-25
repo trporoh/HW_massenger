@@ -8,10 +8,10 @@ obj3 := sys5.o
 all: $(binfirst) $(binsecond) 
 
 $(binfirst): $(obj1) 
-	gcc $< -o $(binfirst) -lpthread -lrt
+	gcc $< -o $(binfirst) -lpthread -lrt -lcurses
 
 $(binsecond): $(obj2) 
-	gcc $< -o $(binsecond) -lpthread -lrt 
+	gcc $< -o $(binsecond) -lpthread -lrt -lcurses
 
 %.o: %.c
 	gcc -c $< -o $@ -g
