@@ -40,13 +40,13 @@ void getname(char** name) {
 	
 	printf("Enter your name:\n");
 
-	scanf("\033[1;32;40m%s\033[0m",*name);
+	scanf("%s",*name);
 	
 	buffer = (char*)malloc(strlen(*name) + 1);
 	buffer[0] = '/';
 	strcat(buffer, *name);
 
-	queue = mq_open(buffer, O_RDONLY);
+	queue = mq_open(buffer, O_RDONLY | O_CREAT, S_IRUSR | S_IWUSR, NULL);
 
 	mq_send(server, buffer, strlen(buffer), 1);
 
@@ -56,7 +56,8 @@ void getname(char** name) {
 int send_massege() {
 
 	char* string = malloc(512);
-	scanf("%s", string);
+//	scanf("%s", string);
+	gets(string,sizeof(string));
 
 	strcat(massege_to_send, "\n");
 	strcat(massege_to_send, string);

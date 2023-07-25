@@ -28,14 +28,14 @@ void* send_to_client(void* args);
 
 int main(int argc, char** argv) {
 
-	struct list* head = NULL;
-	struct list* tail = head;
+	struct list* tail = NULL;
+	struct list* head = tail;
 
 	char** clients = (char**)malloc(512);
 	int number_of_clients = 0;
 	int processing;
 
-	server_buffer = mq_open("/servers_buf", O_NONBLOCK);
+	server_buffer = mq_open("/servers_buf", O_CREAT | O_RDONLY, S_IRUSR | S_IWUSR, NULL);
 	while (1) {
 
 		processing = check_function(tail, clients, number_of_clients);
@@ -62,7 +62,7 @@ int check_function(struct list* args, char** names, int number_of_names) {
 		return -1;
 	}
 
-	if (string[0] == "/") {
+	if (string[0] == '/') {
 
 		printf("\033[1;33;40mFound massege with name of buffer.\033[0m\n");
 
@@ -75,6 +75,7 @@ int check_function(struct list* args, char** names, int number_of_names) {
 	printf("\033[1;32;40mFound massege to send.\033[0m\n");
 
 	pthread_t send;
+	send_to.string = (char*)malloc(strlen(string));
 	strcpy(send_to.string, string);
 	send_to.whom = names;
 
@@ -83,7 +84,7 @@ int check_function(struct list* args, char** names, int number_of_names) {
 	struct massege* str = malloc(sizeof(struct massege));
 	str->name = strtok(string, "\n");
 	str->massege = strtok(string, "\0");
-	if (args = NULL) {
+	if (NULL == args) {
 		args = malloc(sizeof(struct list));
 		args->massege = str;
 		args->next = NULL;
@@ -115,6 +116,7 @@ void* send_to_client(void* args) {
 		mq_send(open, ptr->string, strlen(ptr->string), 1);
 
 		mq_close(open);
+		i++;
 
 	}
 
